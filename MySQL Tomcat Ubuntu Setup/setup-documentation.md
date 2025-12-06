@@ -1,5 +1,8 @@
 # MySQL 5.x and Tomcat 8/9 Setup on Ubuntu Server
 
+![Job Post](images/1.png)
+![Job Post](images/2.png)
+
 **Project scope:** Performed a clean installation, configuration, security hardening, and prepared ongoing support guidance for MySQL 5.x and Tomcat 8 or 9 on Ubuntu Server.
 
 > **Note:** This documentation contained no client-sensitive data. All examples used placeholders for credentials and domain names.
