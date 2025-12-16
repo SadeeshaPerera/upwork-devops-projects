@@ -1,0 +1,57 @@
+version: '3.8'
+
+env_file:
+  - .env
+
+services:
+  db:
+    image: mariadb:10.5
+    container_name: glpi_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${MYSQL_DATABASE:-glpidb}"
+      MYSQL_USER: "${MYSQL_USER:-glpiuser}"
+      MYSQL_PASSWORD: "${MYSQL_PASSWORD}"
+    volumes:
+      - glpi_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - glpi-net
+
+  glpi:
+    image: glpi/glpi:latest
+    container_name: glpi_app
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:80" # change host port if needed or use reverse-proxy
+    restart: unless-stopped
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: "${MYSQL_DATABASE:-glpidb}"
+      DB_USER: "${MYSQL_USER:-glpiuser}"
+      DB_PASSWORD: "${MYSQL_PASSWORD}"
+    volumes:
+      - glpi_uploads:/var/www/html/files
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - glpi-net
+
+volumes:
+  glpi_db_data:
+  glpi_uploads:
+
+networks:
+  glpi-net:
+    driver: bridge
